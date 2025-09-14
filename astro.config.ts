@@ -10,6 +10,7 @@ import {
 } from "@shikijs/transformers";
 import { transformerFileName } from "./src/utils/transformers/fileName";
 import { SITE } from "./src/config";
+import { normalizeTheLocale } from "astro/virtual-modules/i18n.js";
 
 // https://astro.build/config
 export default defineConfig({
@@ -59,5 +60,19 @@ export default defineConfig({
   },
   experimental: {
     preserveScriptOrder: true,
+    fonts:[
+      {
+        provider: "local",
+        name: "Annotation Mono Regular",
+        cssVariable: "@font-face",
+        variants: [
+          {
+            weight: 400,
+            style: "normal",
+            src: ["./src/assets/font/regular.woff2"]
+          }
+        ]
+      }
+    ]
   },
 });
