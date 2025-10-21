@@ -1,6 +1,6 @@
 ---
 author: Adi
-pubDatetime: 2025-10-21T05:10:00Z
+pubDatetime: 2025-10-21T00:00:00Z
 title: Echo Chamber Of Psychology
 slug: echo-chamber-of-psychology
 featured: false
