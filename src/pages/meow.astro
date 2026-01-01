@@ -1,0 +1,116 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Main from "@/layouts/Main.astro";
+import { SITE } from "@/config";
+import fs from "fs";
+import path from "path";
+import { getImage } from "astro:assets";
+
+// Read images from public/meow directory
+const meowDir = path.join(process.cwd(), "public", "meow");
+let imageFiles: string[] = [];
+
+try {
+  if (fs.existsSync(meowDir)) {
+    imageFiles = fs
+      .readdirSync(meowDir)
+      .filter((file) => /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(file))
+      .map((file) => `/meow/${file}`);
+  }
+} catch (error) {
+  console.error("Error reading meow directory:", error);
+}
+---
+
+<Layout title={`Meow | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Meow" pageDesc="A photo grid gallery">
+    <div
+      id="photo-grid"
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]"
+    >
+      {imageFiles.map((src) => (
+        <div class="relative overflow-hidden rounded-lg group cursor-pointer hover:opacity-90 transition-opacity" data-src={src}>
+          <img
+            src={src}
+            alt="Gallery photo"
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+    {imageFiles.length === 0 && (
+      <p class="text-center text-muted-foreground">
+        No images found. Add images to the <code>public/meow</code> directory to display them here.
+      </p>
+    )}
+  </Main>
+  <Footer />
+</Layout>
+
+<script>
+  function getGridSpan(aspectRatio: number): { row: number; col: number } {
+    // Determine grid span based on aspect ratio
+    // aspectRatio > 1.5 = wide (2 cols, 1 row)
+    // aspectRatio < 0.7 = tall (1 col, 2 rows)
+    // 1.2 < aspectRatio < 1.5 = slightly wide (2 cols, 2 rows)
+    // else = square (1 col, 1 row)
+
+    if (aspectRatio > 1.5) {
+      return { row: 1, col: 2 };
+    } else if (aspectRatio < 0.7) {
+      return { row: 2, col: 1 };
+    } else if (aspectRatio > 1.2) {
+      return { row: 2, col: 2 };
+    } else {
+      return { row: 1, col: 1 };
+    }
+  }
+
+  function applyGridSpans() {
+    const images = document.querySelectorAll("#photo-grid > div");
+
+    images.forEach((div) => {
+      const img = div.querySelector("img") as HTMLImageElement;
+      if (!img) return;
+
+      const applySpan = () => {
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        const span = getGridSpan(aspectRatio);
+        (div as HTMLElement).style.gridRowEnd = `span ${span.row}`;
+        (div as HTMLElement).style.gridColumnEnd = `span ${span.col}`;
+      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        applySpan();
+      } else {
+        img.addEventListener("load", applySpan);
+      }
+
+      // Click to view full size
+      div.addEventListener("click", () => {
+        const src = (div as HTMLElement).dataset.src;
+        if (src) window.open(src, "_blank");
+      });
+    });
+  }
+
+  function init() {
+    applyGridSpans();
+  }
+
+  // Initialize on page load
+  init();
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener("astro:after-swap", init);
+</script>
+
+<style>
+  #photo-grid {
+    grid-auto-flow: dense;
+  }
+</style>
