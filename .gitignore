@@ -24,8 +24,10 @@ pnpm-debug.log*
 .idea/
 
 # pagefind
-
 public/pagefind
 WARP.md
 .claudeignore
 CLAUDE.md
+
+#resume
+AdityaPatil.typ
