@@ -31,17 +31,14 @@ const isActive = (path: string) => {
   >
     Skip to content
   </a>
-  <div
-    id="nav-container"
-    class="mx-auto flex max-w-app flex-col items-center justify-between sm:flex-row"
-  >
+  <div id="nav-container" class="mx-auto flex max-w-5xl flex-col items-center justify-between px-4 sm:flex-row sm:px-8">
     <div
       id="top-nav-wrap"
       class="relative flex w-full items-baseline justify-between bg-background p-4 sm:items-center sm:py-6"
     >
       <a
         href="/"
-        class="absolute py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none"
+        class="display-face absolute py-1 text-2xl leading-8 font-bold whitespace-nowrap sm:static sm:my-auto sm:text-3xl sm:leading-none"
       >
         {SITE.title}
       </a>
@@ -70,12 +67,12 @@ const isActive = (path: string) => {
         >
           <li class="col-span-2">
             <a href="/posts" class:list={{ "active-nav": isActive("/posts") }}>
-              Posts
+              Journal
             </a>
           </li>
           <li class="col-span-2">
             <a href="/tags" class:list={{ "active-nav": isActive("/tags") }}>
-              Tags
+              Topics
             </a>
           </li>
           <li class="col-span-2">

@@ -23,6 +23,12 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# AI and agent tooling
+.agents/
+.claude/
+.hallmark/
+skills-lock.json
+
 # pagefind
 public/pagefind
 WARP.md

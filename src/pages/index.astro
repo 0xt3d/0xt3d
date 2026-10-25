@@ -4,109 +4,60 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Socials from "@/components/Socials.astro";
-import LinkButton from "@/components/LinkButton.astro";
-import Card from "@/components/Card.astro";
-import Hr from "@/components/Hr.astro";
-import getSortedPosts from "@/utils/getSortedPosts";
-import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
-import { SITE } from "@/config";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { getPath } from "@/utils/getPath";
 import { SOCIALS } from "@/constants";
 
-const posts = await getCollection("blog");
-
-const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const posts = getSortedPosts(await getCollection("blog"));
+const featuredPost = posts.find(({ data }) => data.featured) ?? posts[0];
+const otherPosts = posts.filter(post => post.id !== featuredPost?.id);
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index">
-    <section id="hero" class="pt-8 pb-6">
-      <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-        0xt3d
-      </h1>
-      <a
-        target="_blank"
-        href="/rss.xml"
-        class="inline-block"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <IconRss
-          width={20}
-          height={20}
-          class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
-        />
-        <span class="sr-only">RSS Feed</span>
-      </a>
-
-
-
-      <p>
-        Aspiring Platform Engineer | DevOps Enthusiast | Open Source Contributor
-      </p>
- 
-      {
-        // only display if at least one social link is enabled
-        SOCIALS.length > 0 && (
-          <div class="mt-4 flex flex-col sm:flex-row sm:items-center">
-            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
+  <main id="main-content" data-layout="index" class="paper-shell mx-auto w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-10">
+    <section class="px-0" aria-labelledby="site-intro">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+        <span class="eyebrow">Issue 01 · Notes from the edge</span>
+        <span class="eyebrow">{new Date().getFullYear()} / 0xt3d</span>
+      </div>
+      <div class="grid gap-8 py-10 md:grid-cols-[1.4fr_0.6fr] md:items-end md:py-16">
+        <div>
+          <p class="eyebrow mb-5 text-accent">A personal field journal</p>
+          <h1 id="site-intro" class="display-face max-w-3xl text-6xl leading-[0.88] font-normal sm:text-8xl">Thinking out loud,<br /><span class="text-accent">in public.</span></h1>
+        </div>
+        <div class="border-l-2 border-accent pl-5 text-sm leading-6">
+          <p class="mb-5">Aspiring Platform Engineer, DevOps enthusiast, and open source contributor.</p>
+          <div class="flex items-center gap-3"><a class="font-bold underline decoration-dashed underline-offset-4 hover:text-accent" href="/about">More about me</a><span aria-hidden="true">↗</span></div>
+        </div>
+      </div>
     </section>
 
-    <Hr />
+    {featuredPost && (
+      <section class="px-0 pt-6 pb-10" aria-labelledby="featured-heading">
+        <div class="rule-label mb-5"><span id="featured-heading">Featured dispatch</span></div>
+        <a href={getPath(featuredPost.id, featuredPost.filePath)} class="group grid gap-6 md:grid-cols-[minmax(0,1.5fr)_minmax(12rem,0.5fr)]">
+          <div><p class="eyebrow mb-3 text-accent">{featuredPost.data.tags[0] ?? "essay"}</p><h2 class="display-face max-w-2xl text-4xl leading-[0.95] font-normal group-hover:text-accent sm:text-6xl">{featuredPost.data.title}</h2></div>
+          <div class="flex flex-col justify-between gap-5 border-t border-border pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-5"><p class="text-sm leading-6">{featuredPost.data.description}</p><span class="eyebrow flex items-center gap-2 text-accent">Read dispatch <IconArrowRight class="transition-transform group-hover:translate-x-1" /></span></div>
+        </a>
+      </section>
+    )}
 
-    {
-      featuredPosts.length > 0 && (
-        <>
-          <section id="featured" class="pt-12 pb-6">
-            <h2 class="text-2xl font-semibold tracking-wide">Featured</h2>
-            <ul>
-              {featuredPosts.map(data => (
-                <Card variant="h3" {...data} />
-              ))}
-            </ul>
-          </section>
-          {recentPosts.length > 0 && <Hr />}
-        </>
-      )
-    }
+    <section class="px-0 pt-6 pb-8" aria-labelledby="recent-heading">
+      <div class="mb-1 flex items-center justify-between gap-4"><div class="rule-label flex-1"><span id="recent-heading">Recent notes</span></div><a class="eyebrow whitespace-nowrap text-accent hover:underline" href="/posts">Index ↗</a></div>
+      <div>
+        {otherPosts.length > 0 ? otherPosts.map((post, index) => (
+          <a href={getPath(post.id, post.filePath)} class="post-row group"><span class="display-face text-2xl text-accent">0{index + 1}</span><div><h3 class="display-face text-2xl font-normal group-hover:text-accent sm:text-3xl">{post.data.title}</h3><p class="mt-2 max-w-xl text-sm leading-6">{post.data.description}</p></div><div class="text-xs leading-5 opacity-70"><div>{post.data.tags[0] ?? "note"}</div><div>{post.data.pubDatetime.toLocaleDateString("en-US", { year: "numeric", month: "short" })}</div></div></a>
+        )) : <p class="py-8 text-sm">More notes are on the way.</p>}
+      </div>
+    </section>
 
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
-          </ul>
-        </section>
-      )
-    }
-
-    <div class="my-8 text-center">
-      <LinkButton href="/posts/">
-        All Posts
-        <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </LinkButton>
-    </div>
+    <section class="grid gap-5 border-t border-border px-0 pt-6 pb-8 sm:grid-cols-[1fr_auto] sm:items-end"><div><p class="eyebrow mb-3">Keep in touch</p><h2 class="display-face max-w-xl text-3xl font-normal sm:text-4xl">The best ideas usually start as a rough note.</h2></div>{SOCIALS.length > 0 && <Socials />}</section>
   </main>
   <Footer />
 </Layout>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
-    const indexLayout = (document.querySelector("#main-content") as HTMLElement)
-      ?.dataset?.layout;
-    if (indexLayout) {
-      sessionStorage.setItem("backUrl", "/");
-    }
-  });
+  document.addEventListener("astro:page-load", () => sessionStorage.setItem("backUrl", "/"));
 </script>
